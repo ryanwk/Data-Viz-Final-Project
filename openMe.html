@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  h1 {
+    padding-left: 40px;
+    margin-bottom: -10px;
+  }
+
+  path:hover {
+    fill-opacity: .7;
+  }
+
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: white;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .county-borders {
+    fill: none;
+    stroke: white;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+
+  .counties {
+    fill: none;
+  }
+
+  .states {
+    fill: none;
+    stroke: white;
+    stroke-linejoin: round;
+  }
+
+  .state-borders {
+    fill: none;
+    stroke: white;
+    opacity: .8;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+
+  .q0 {
+    fill: #b6b2b2;
+  }
+
+  .q1 {
+    fill: rgba(255, 251, 41, 0.897);
+  }
+
+  .q2 {
+    fill: #FCD37F;
+  }
+
+  .q3 {
+    fill: #FA0;
+  }
+
+  .q4 {
+    fill: #E60000;
+  }
+
+  .q5 {
+    fill: #730000;
+  }
+</style>
+<h1></h1></br>
+<svg width="960" height="600"></svg>
+<script src="js/d3.v4.min.js"></script>
+<script src="js/topojson.v1.min.js"></script>
+<script>
+
+  var title = d3.select("h1")
+    .text("Severity of Drought by County");
+
+  var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+  var countyBySeverity = d3.map();
+
+  var quantize = d3.scaleQuantize()
+    .domain([0, 5])
+    .range([0, 1, 2, 3, 4, 5]);
+
+  var projection = d3.geoAlbersUsa()
+    .scale(1280)
+    .translate([width / 2, height / 2]);
+
+  var path = d3.geoPath()
+    .projection(projection);
+
+  function droughtSeverity(d) {
+    var severityInterval = 0
+    if (d.D0 > 0)
+      severityInterval = 1
+    if (d.D1 > 0)
+      severityInterval = 2
+    if (d.D2 > 0)
+      severityInterval = 3
+    if (d.D3 > 0)
+      severityInterval = 4
+    if (d.D4 > 0)
+      severityInterval = 5
+    return severityInterval
+  }
+
+  var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+  d3.queue()
+    .defer(d3.json, "js/us.json")
+    .defer(d3.tsv, "tsv/drought.tsv", function (d) {
+      var droughtData = {
+        "droughtSeverity": droughtSeverity(d),
+        "county": d.County
+      };
+      countyBySeverity.set(d.FIPS, droughtData);
+    })
+    .await(ready);
+
+  function ready(error, us) {
+    if (error) throw error;
+
+    svg.append("g")
+      .attr("class", "counties")
+      .selectAll("path")
+      .data(topojson.feature(us, us.objects.counties).features)
+      .enter().append("path")
+      .attr("class", function (d) {
+        var countyData = countyBySeverity.get(d.id);
+        if (countyData) {
+          return "q" + countyData.droughtSeverity;
+        } else return "q" + 0;
+      })
+      .attr("d", path)
+      .on("mouseover", function (d) {
+        var countyData = countyBySeverity.get(d.id);
+        div.style("opacity", 1);
+        div.text(function () {
+          return countyData.county;
+        })
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 50) + "px");
+      })
+      .on("mouseout", function (d) {
+        div.style("opacity", 0);
+      });
+
+    svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function (a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+  };
+
+  var legendDimensions = [
+    { "x_axis": 24, "y_axis": 100, "text": "None", "color": "grey" },
+    { "x_axis": 24, "y_axis": 75, "text": "Abnormal", "color": "yellow" },
+    { "x_axis": 24, "y_axis": 50, "text": "Moderate", "color": "orange" },
+    { "x_axis": 24, "y_axis": 25, "text": "Severe", "color": "red" },
+    { "x_axis": 24, "y_axis": 0, "text": "Danger Zone", "color": "maroon" }];
+
+
+  var legendContainer = d3.select("body").append("svg")
+    .attr("class", "legend")
+    .attr("width", 140)
+    .attr("height", 200);
+
+  var rectangles = legendContainer.append("rect")
+    .attr("x", 24)
+    .attr("y", 9)
+    .attr("width", 18)
+    .attr("height", 18)
+    .style("fill", "grey");
+
+  var colors = legendContainer.selectAll("rect")
+    .data(legendDimensions)
+    .enter()
+    .append("rect")
+    .attr("x", function (d) { return d.x_axis; })
+    .attr("y", function (d) { return d.y_axis; })
+    .attr("fill", function (d) { return d.color; })
+    .attr("width", 18)
+    .attr("height", "18px");
+
+  var text = legendContainer.selectAll("text")
+    .data(legendDimensions)
+    .enter()
+    .append("text")
+    .attr("x", 42)
+    .text(function (d) { return d.text; })
+    .attr("y", function (d) { return d.y_axis + 20; })
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "17px")
+    .attr("fill", "black");
+
+  var rectAttributes = rectangles
+    .attr("x", function (d) { return d.x_axis; })
+    .attr("y", function (d) { return d.y_axis; });
+
+</script>

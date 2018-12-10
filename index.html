@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/queue.v1.min.js"></script>
-<script src="http://d3js.org/topojson.v1.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.1/crossfilter.min.js"></script>
-<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>  
-<style>
-  #title {
+
+<head>
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="//d3js.org/d3.v4.min.js"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.1/crossfilter.min.js"></script>
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+  <style>
+    /* #title {
   text-align: center;
   padding-bottom: 60px;
   font-size: 22px;
@@ -104,212 +109,150 @@ body {
 
 #map-legend{
   text-align: center; 
-}
-</style>
-<h1></h1></br>
-<form>
-        <label for="year">Please select a year: </label>
-        <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
-        <output name="selected_year" id="selected_year">2013</output>
-    </form>
-<svg width="960" height="600"></svg>
-<script>
-/***
-  var title = d3.select("h1")
-    .text("Methane production by state");
+} */
+  </style>
 
-  var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+</head>
 
-  var polutionById = d3.map();
-  var stateFips = d3.map();
+<body>
 
-  var path = d3.geo.path();
+  <h1></h1></br>
 
-  queue()
-    .defer(d3.json, "us.json")
-    .defer(d3.csv, "methane.csv", function(d) { 
-      if (typeof polutionById.get(d.STATE) !== 'undefined'){
-        var sumdata = polutionById.get(d.STATE);
-        sumdata += parseInt(d.VALUE);
-        polutionById.set(d.STATE, sumdata);
-      }
-      else
-        polutionById.set(d.STATE, parseInt(d.VALUE)); })
-    .defer(d3.csv, "state-fips.csv", function(d) {
-      stateFips.set(d.state, d.state_abbr); 
-    })
-    .await(ready);
+  <!-- <form>
+    <label for="year">Please select a year: </label>
+    <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
+    <output name="selected_year" id="selected_year">2013</output>
+  </form>
 
-  var quantize = d3.scale.log()
-    .domain([58201, 50203393]);
-
-  var quantize2 = d3.scale.quantize()
-    .domain([0, 1])
-    .range(d3.range(5).map(function(i) { return "q" + i; }));
-var max = 0;
-var min = 10000000000;
-function ready(error, us) {
-  if (error) throw error;
-  
-  svg.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-      .data(topojson.feature(us, us.objects.states).features)
-    .enter().append("path")
-      .attr("class", function(d) { 
-        
-        sname = stateFips.get(d.id);
-        //console.log(sname);
-        var dataval = polutionById.get(sname);
-        //console.log(d.id + ", " + dataval);
-        if (dataval > max)
-          max = dataval
-        if (dataval < min)
-          min = dataval
-        console.log(quantize(dataval));
-        console.log(quantize2(quantize(dataval)));
-        return quantize2(quantize(dataval));
-        
-       // return quantize(polutionById.get(cname)); 
-      })
-      .attr("id", function(d) { return d.COUNTY; })
-      .attr("d", path)
-
-  //svg.append("path")
-  //    .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-  //    .attr("class", "states")
-  //    .attr("d", path);
-  console.log("max")
-  console.log(max)
-  console.log("min")
-  console.log(min)
-}
-*///
-  var title = d3.select("h1")
-    .text("Methane production by state");
-
-  var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
-  var usmap;
+  <svg width="960" height="600"></svg> -->
 
 
-  var quantize = d3.scale.log()
-    .domain([58201, 50203393]);
+  <script>
 
-  var quantize2 = d3.scale.quantize()
-    .domain([0, 1])
-    .range(d3.range(8).map(function(i) { return "q" + i; }));
+    // var margin = {
+    //   top: 10,
+    //   bottom: 70,
+    //   left: 70,
+    //   right: 20
+    // }
 
-  var data = {};
-  var polutionById2013 = d3.map();
-  var polutionById2014 = d3.map();
-  var polutionById2015 = d3.map();
-  var polutionById2016 = d3.map();
-  var polutionById2017 = d3.map();
-  var stateFips = d3.map();
+    // var title = d3.select("h1")
+    //   .text("Methane Production by State");
 
-  var path = d3.geo.path();
-  queue()
-    .defer(d3.json, "us.json")
-    .defer(d3.csv, "2013.csv", function(d) { 
-      if (typeof polutionById2013.get(d.STATE) !== 'undefined'){
-        var sumdata = polutionById2013.get(d.STATE);
-        sumdata += parseInt(d.VALUE);
-        polutionById2013.set(d.STATE, sumdata);
-      }
-      else {
-        polutionById2013.set(d.STATE, parseInt(d.VALUE)); 
-      }
-      
-    })
-    .defer(d3.csv, "2014.csv", function(d) { 
-      if (typeof polutionById2014.get(d.STATE) !== 'undefined'){
-        var sumdata = polutionById2014.get(d.STATE);
-        sumdata += parseInt(d.VALUE);
-        polutionById2014.set(d.STATE, sumdata);
-      }
-      else{
-        polutionById2014.set(d.STATE, parseInt(d.VALUE)); 
-      }
-      
-    })
-    .defer(d3.csv, "2015.csv", function(d) { 
-      if (typeof polutionById2015.get(d.STATE) !== 'undefined'){
-        var sumdata = polutionById2015.get(d.STATE);
-        sumdata += parseInt(d.VALUE);
-        polutionById2015.set(d.STATE, sumdata);
-      }
-      else {
-        polutionById2015.set(d.STATE, parseInt(d.VALUE)); 
-      }
-      
-    })
-    .defer(d3.csv, "2016.csv", function(d) { 
-      if (typeof polutionById2016.get(d.STATE) !== 'undefined'){
-        var sumdata = polutionById2016.get(d.STATE);
-        sumdata += parseInt(d.VALUE);
-        polutionById2016.set(d.STATE, sumdata);
-      }
-      else
-        polutionById2016.set(d.STATE, parseInt(d.VALUE)); 
-      
-    })
-    .defer(d3.csv, "2017.csv", function(d) { 
-      if (typeof polutionById2017.get(d.STATE) !== 'undefined'){
-        var sumdata = polutionById2017.get(d.STATE);
-        sumdata += parseInt(d.VALUE);
-        polutionById2017.set(d.STATE, sumdata);
-      }
-      else
-        polutionById2017.set(d.STATE, parseInt(d.VALUE)); 
-      
-    })
-    .defer(d3.csv, "state-fips.csv", function(d) {
-      stateFips.set(d.state, d.state_abbr); 
-    })
-    .await(ready);
-function ready(error, us) {
-  if (error) throw error;
-  usmap = us;
-  data['2013'] = polutionById2013;
-  data['2014'] = polutionById2014;
-  data['2015'] = polutionById2015;
-  data['2016'] = polutionById2016;
-  data['2017'] = polutionById2017;
-  console.log(data)
-  draw('2013');
+    // var svg = d3.select("svg"),
+    //   width = +svg.attr("width"),
+    //   height = +svg.attr("height");
 
-}
-function draw(year){
-  mapping = data[year];
-  svg.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-      .data(topojson.feature(usmap, usmap.objects.states).features)
-    .enter().append("path")
-      .attr("class", function(d) { 
-        
-        sname = stateFips.get(d.id);
-        //console.log(sname);
-        var dataval = mapping.get(sname);
-        //console.log(d.id + ", " + dataval);
-        //if (dataval > max)
-        //console.log(quantize(dataval));
-        //console.log(quantize2(quantize(dataval)));
-        return quantize2(quantize(dataval));
-        
-       // return quantize(polutionById.get(cname)); 
-      })
-      .attr("id", function(d) { return d.COUNTY; })
-      .attr("d", path)
+    // var usmap;
 
+    // var quantize = d3.scale.log()
+    //   .domain([58201, 50203393]);
 
-}
-var slider = d3.select('#year');
-slider.on('change', function() {
-    draw(this.value);
-});
-</script>
+    // var quantize2 = d3.scale.quantize()
+    //   .domain([0, 1])
+    //   .range(d3.range(8).map(function (i) { return "q" + i; }));
+
+    // var data = {};
+    // var polutionById2013 = d3.map();
+    // var polutionById2014 = d3.map();
+    // var polutionById2015 = d3.map();
+    // var polutionById2016 = d3.map();
+    // var polutionById2017 = d3.map();
+    // var stateFips = d3.map();
+
+    // var path = d3.geo.path();
+    // queue()
+    //   .defer(d3.json, "us.json")
+    //   .defer(d3.csv, "2013.csv", function (d) {
+    //     if (typeof polutionById2013.get(d.STATE) !== 'undefined') {
+    //       var sumdata = polutionById2013.get(d.STATE);
+    //       sumdata += parseInt(d.VALUE);
+    //       polutionById2013.set(d.STATE, sumdata);
+    //     }
+    //     else {
+    //       polutionById2013.set(d.STATE, parseInt(d.VALUE));
+    //     }
+
+    //   })
+    //   .defer(d3.csv, "2014.csv", function (d) {
+    //     if (typeof polutionById2014.get(d.STATE) !== 'undefined') {
+    //       var sumdata = polutionById2014.get(d.STATE);
+    //       sumdata += parseInt(d.VALUE);
+    //       polutionById2014.set(d.STATE, sumdata);
+    //     }
+    //     else {
+    //       polutionById2014.set(d.STATE, parseInt(d.VALUE));
+    //     }
+
+    //   })
+    //   .defer(d3.csv, "2015.csv", function (d) {
+    //     if (typeof polutionById2015.get(d.STATE) !== 'undefined') {
+    //       var sumdata = polutionById2015.get(d.STATE);
+    //       sumdata += parseInt(d.VALUE);
+    //       polutionById2015.set(d.STATE, sumdata);
+    //     }
+    //     else {
+    //       polutionById2015.set(d.STATE, parseInt(d.VALUE));
+    //     }
+
+    //   })
+    //   .defer(d3.csv, "2016.csv", function (d) {
+    //     if (typeof polutionById2016.get(d.STATE) !== 'undefined') {
+    //       var sumdata = polutionById2016.get(d.STATE);
+    //       sumdata += parseInt(d.VALUE);
+    //       polutionById2016.set(d.STATE, sumdata);
+    //     }
+    //     else
+    //       polutionById2016.set(d.STATE, parseInt(d.VALUE));
+
+    //   })
+    //   .defer(d3.csv, "2017.csv", function (d) {
+    //     if (typeof polutionById2017.get(d.STATE) !== 'undefined') {
+    //       var sumdata = polutionById2017.get(d.STATE);
+    //       sumdata += parseInt(d.VALUE);
+    //       polutionById2017.set(d.STATE, sumdata);
+    //     }
+    //     else
+    //       polutionById2017.set(d.STATE, parseInt(d.VALUE));
+
+    //   })
+    //   .defer(d3.csv, "state-fips.csv", function (d) {
+    //     stateFips.set(d.state, d.state_abbr);
+    //   })
+    //   .await(ready);
+
+    // function ready(error, us) {
+    //   if (error) throw error;
+    //   usmap = us;
+    //   data['2013'] = polutionById2013;
+    //   data['2014'] = polutionById2014;
+    //   data['2015'] = polutionById2015;
+    //   data['2016'] = polutionById2016;
+    //   data['2017'] = polutionById2017;
+    //   draw('2013');
+
+    // }
+
+    // function draw(year) {
+    //   mapping = data[year];
+    //   svg.append("g")
+    //     .attr("class", "counties")
+    //     .selectAll("path")
+    //     .data(topojson.feature(usmap, usmap.objects.states).features)
+    //     .enter().append("path")
+    //     .attr("class", function (d) {
+
+    //       sname = stateFips.get(d.id);
+    //       var dataval = mapping.get(sname);
+    //       return quantize2(quantize(dataval));
+    //     })
+    //     .attr("id", function (d) { return d.COUNTY; })
+    //     .attr("d", path)
+
+    // }
+
+    // var slider = d3.select('#year');
+    // slider.on('change', function () {
+    //   draw(this.value);
+    // });
+  </script>

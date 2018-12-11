@@ -33,8 +33,6 @@ body {
   font-size: 12px;
   font-weight: 400;
   background-color: #fff;
-  /* width: 960px;
-  height: 800px; */
   margin-top: 10px;
 }
 
@@ -55,12 +53,33 @@ body {
       fill: none;
     }
 
-    .axis path,
     .axis line {
-      fill: none;
-      stroke: grey;
-      stroke-width: 2;
+      stroke: black;
+      stroke-width: 30;
       shape-rendering: crispEdges;
+    }
+    /* .text {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 30px;
+      font-weight: 400;
+      stroke: black;
+      stroke-width: 2;
+    } */
+
+    .yaxis {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      stroke: black;
+      stroke-width: 2;
+    }
+
+    .xaxis {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 30px;
+      font-weight: 400;
+      stroke: black;
+      stroke-width: 2;
     }
 
 * {
@@ -134,20 +153,17 @@ body {
       .append("g")
       .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
 
+
+    // chart name; made it a var so we could dynamically change it
     var chartTitle = "Milk Cows by State";
     var cowCharttitle = d3.select("#cowChartTitle")
       .text(chartTitle);
 
 
     // Get the data
-    d3.csv("data2.csv", function (error, data) {
+    d3.csv("data1.csv", function (error, data) {
       data.forEach(function (d) {
-
-        console.log(d.state);
-        console.log(d.value);
-
         d.value = +d.value;
-
         return d.value;
       });
 
@@ -155,26 +171,81 @@ body {
       x.domain(d3.extent(data, function (d) { return d.state; }));
       y.domain([0, d3.max(data, function (d) { return d.value; })]);
 
+      // give the barz some space
+      var barPadding = 1;
+      // make tha barz
+      cowChart.selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("width", chartWidth / data.length - barPadding)
+        .attr("height", function (d) {
+          return d.value;  //Just the data value
+        })
+        .attr("x", function (data, i) {
+          return i * (chartWidth / data.length - barPadding);
+        })
+        .attr("y", function (data) {
+          return chartHeight - data.value;  //Height minus data value
+        })
+        .attr("fill", function (d) {
+          return "rgb(0, 0, " + (d.value * 10) + ")";
+        });
+
+      // label barz
+      cowChart.selectAll("text")
+        .data(data)
+        .enter()
+        .append("text")
+        .text(function (d) {
+          return d.value;
+        })
+        .attr("x", function (d, i) {
+          return i * (chartWidth / data.length) + (chartWidth / data.length - barPadding) / 2;
+        })
+        .attr("y", function (d) {
+          return chartHeight - (d.value * 4) + 14;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "11px")
+        .attr("fill", "black")
+        .attr("text-anchor", "middle");
+
+
       // Define the line 
       var valueline = d3.svg.line()
         .x(function (d) { return x(d.state); })
         .y(function (d) { return y(d.value); });
 
       // Add the valueline path.
-      cowChart.append("path")
-        .attr("class", "line")
+      cowChart.append("rect")
+        .attr("class", "rect")
         .attr("d", valueline(data));
 
       // Add the X Axis
       cowChart.append("g")
-        .attr("class", "x axis")
+        .attr("class", "xaxis")
         .attr("transform", "translate(0," + chartHeight + ")")
         .call(xAxis);
 
+      cowChart.append("text")    // text label for the x axis
+        .attr("x", chartWidth / 2)
+        .attr("y", chartHeight + chartMargin.bottom)
+        .style("text-anchor", "middle")
+        .text("State");
+
       // Add the Y Axis
       cowChart.append("g")
-        .attr("class", "y axis")
+        .attr("class", "yaxis")
         .call(yAxis);
+
+      cowChart.append("text")  // text labe for y axis
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - chartMargin.left)
+        .attr("x", 0 - (chartHeight / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Value");
 
     });
 

@@ -69,17 +69,17 @@ body {
     .yaxis {
       font-family: 'Open Sans', sans-serif;
       font-size: 20px;
-      font-weight: 400;
+      /* font-weight: 400; */
       stroke: black;
-      stroke-width: 2;
+      /* stroke-width: 2; */
     }
 
     .xaxis {
       font-family: 'Open Sans', sans-serif;
-      font-size: 30px;
-      font-weight: 400;
+      font-size: 20px;
+      /* font-weight: 400; */
       stroke: black;
-      stroke-width: 2;
+      /* stroke-width: 2; */
     }
 
 * {
@@ -228,10 +228,12 @@ body {
         .attr("transform", "translate(0," + chartHeight + ")")
         .call(xAxis);
 
+      // could put a var in .text() to make title adjust to w/e underlying data 
       cowChart.append("text")    // text label for the x axis
         .attr("x", chartWidth / 2)
         .attr("y", chartHeight + chartMargin.bottom)
         .style("text-anchor", "middle")
+        .style("font-size", "25px")
         .text("State");
 
       // Add the Y Axis
@@ -244,14 +246,16 @@ body {
         .attr("y", 0 - chartMargin.left)
         .attr("x", 0 - (chartHeight / 2))
         .attr("dy", "1em")
+        .style("font-size", "20px")
         .style("text-anchor", "middle")
         .text("Value");
 
+      // could put a var in .text() to make yaxis title adjust to w/e underlying data 
       cowChart.append("text")
         .attr("x", (chartWidth / 2))
         .attr("y", 0 - (chartMargin.top / 2))
         .attr("text-anchor", "middle")
-        .style("font-size", "16px")
+        .style("font-size", "25px")
         .style("text-decoration", "underline")
         .text("Cows per State");
 

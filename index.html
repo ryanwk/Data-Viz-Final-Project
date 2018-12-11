@@ -15,7 +15,7 @@
     #title {
   text-align: center;
   padding-bottom: 60px;
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 400;
 }
 
@@ -33,67 +33,11 @@ body {
   font-size: 12px;
   font-weight: 400;
   background-color: #fff;
-  width: 960px;
-  height: 800px;
+  /* width: 960px;
+  height: 800px; */
   margin-top: 10px;
 }
 
-/* #charts{
-  float: left;
-} */
-
-/* .chart {
-  height: 100px;
-  margin-bottom: 20px;
-} */
-
-.reset {
-  padding-left: 1em;
-  font-size: smaller;
-  color: blue;
-}
-
-/* .background.bar {
-  fill: #ccc;
-}
-
-.foreground.bar {
-  fill: steelblue;
-} */
-
-/* .axis path, .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.axis text {
-  font: 10px sans-serif;
-}
-
-.brush rect.extent {
-  fill: steelblue;
-  fill-opacity: .125;
-} */
-
-/* .brush .resize path {
-  fill: #eee;
-  stroke: #666;
-}
-
-#chart path {
-  stroke: #fff;
-}
-
-#chart path.highlighted {
-  cursor: pointer;
-} */
-
-/* .counties {
-  fill: none;
-  stroke: #C0C0C0;
-  stroke-linejoin: round;
-} */
 
 .q0{fill:rgb(255,255,204)}
 .q1{fill:rgb(255,237,160)}
@@ -104,24 +48,10 @@ body {
 .q6{fill:rgb(227,26,28)}
 .q7{fill:rgb(189,0,38)}
 .q8{fill:rgb(128,0,38)}
-/* #map {
-  float: right;
-}
-
-#map-legend{
-  text-align: center; 
-} */
-
-
-    /* chartCSS */
-
-    /* body {
-      font: 12px Arial;
-    } */
 
     path {
       stroke: black;
-      stroke-width: 2;
+      stroke-width: 1;
       fill: none;
     }
 
@@ -129,20 +59,17 @@ body {
     .axis line {
       fill: none;
       stroke: grey;
-      stroke-width: 1;
+      stroke-width: 2;
       shape-rendering: crispEdges;
     }
-    /* .container {
-  height: 500%;
-  width: 100%;
-} */
+
   </style>
 
 </head>
 
 
 <body>
-  <h1></h1></br>
+  <h1 class="title"></h1></br>
 
   <form>
     <label for="year">Please select a year: </label>
@@ -160,8 +87,8 @@ body {
 
     // Set the dimensions of the canvas / graph
     var chartMargin = { top: 30, right: 20, bottom: 30, left: 50 },
-      chartWidth = 400 - chartMargin.left - chartMargin.right,
-      chartHeight = 220 - chartMargin.top - chartMargin.bottom;
+      chartWidth = 600 - chartMargin.left - chartMargin.right,
+      chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
     // Set the ranges
     var x = d3.time.scale().range([0, chartWidth]);

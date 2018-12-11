@@ -132,15 +132,16 @@ body {
       stroke-width: 1;
       shape-rendering: crispEdges;
     }
+    /* .container {
+  height: 500%;
+  width: 100%;
+} */
   </style>
 
 </head>
 
-<div id="area1"></div>
-<div id="area2"></div>
 
 <body>
-
   <h1></h1></br>
 
   <form>
@@ -149,7 +150,11 @@ body {
     <output name="selected_year" id="selected_year">2013</output>
   </form>
 
+  <div id="area2" class="col-m-12 container" viewBox="0 0 50 20">
+    <!-- <svg width="960" height="500"></svg> -->
+  </div>
 
+  <div id="area1" class="col-m-12" viewBox="0 0 50 20"></div>
 
   <script>
 
@@ -185,7 +190,7 @@ body {
     // Get the data
     d3.csv("data2.csv", function (error, data) {
       data.forEach(function (d) {
-        console.log(d.state);
+        // console.log(d.state);
         return d.state;
       });
 
@@ -217,8 +222,8 @@ body {
       .text("Methane Production by State");
 
     var svg = d3.select("#area2").append("svg"),
-      width = +svg.attr("width"),
-      height = +svg.attr("height");
+      width = +svg.attr("width", 960),
+      height = +svg.attr("height", 500);
 
     var usmap;
 

@@ -63,54 +63,74 @@ body {
       shape-rendering: crispEdges;
     }
 
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  height: 100%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  display: table;
+  clear: both;
+}
+
   </style>
 
 </head>
 
 
 <body>
-  <h1 class="title"></h1></br>
+  <div class="row">
+    <h1 class="title"></h1></br>
 
-  <form>
-    <label for="year">Please select a year: </label>
-    <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
-    <output name="selected_year" id="selected_year">2013</output>
-  </form>
+    <form>
+      <label for="year">Please select a year: </label>
+      <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
+      <output name="selected_year" id="selected_year">2013</output>
+    </form>
 
-  <div id="area2" class="col-m-12 container" viewBox="0 0 50 20">
-    <!-- <svg width="960" height="500"></svg> -->
+    <div id="methaneMap" class="column"></div>
+
+    <div id="cowChart" class="column"></div>
   </div>
-
-  <div id="area1" class="col-m-12" viewBox="0 0 50 20"></div>
 
   <script>
 
-    // Set the dimensions of the canvas / graph
+    // Set the dimensions of the cowChart
     var chartMargin = { top: 30, right: 20, bottom: 30, left: 50 },
       chartWidth = 600 - chartMargin.left - chartMargin.right,
       chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
-    // Set the ranges
+    // Set the ranges cowChart
     var x = d3.time.scale().range([0, chartWidth]);
     var y = d3.scale.linear().range([chartHeight, 0]);
 
-    // Define the axes
+    // Define the axes cowChart
     var xAxis = d3.svg.axis().scale(x)
       .orient("bottom").ticks(5);
 
     var yAxis = d3.svg.axis().scale(y)
       .orient("left").ticks(5);
 
-    // Define the line
+    // Define the line 
     var valueline = d3.svg.line()
       .x(function (d) { return x(d.state); })
       .y(function (d) { return y(d.value); });
 
     // Adds the svg canvas
-    var chart = d3.select("#area1")
+    var cowChart = d3.select("#cowChart")
       .append("svg")
-      .attr("width", chartWidth + chartMargin.left + chartMargin.right)
-      .attr("height", chartHeight + chartMargin.top + chartMargin.bottom)
+      // .attr("width", chartWidth + chartMargin.left + chartMargin.right)
+      // .attr("height", chartHeight + chartMargin.top + chartMargin.bottom)
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 0 960 500")
       .append("g")
       .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
 
@@ -126,18 +146,18 @@ body {
       y.domain([0, d3.max(data, function (d) { return d.value; })]);
 
       // Add the valueline path.
-      chart.append("path")
+      cowChart.append("path")
         .attr("class", "line")
         .attr("d", valueline(data));
 
       // Add the X Axis
-      chart.append("g")
+      cowChart.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + chartHeight + ")")
         .call(xAxis);
 
       // Add the Y Axis
-      chart.append("g")
+      cowChart.append("g")
         .attr("class", "y axis")
         .call(yAxis);
 
@@ -148,9 +168,10 @@ body {
     var title = d3.select("h1")
       .text("Methane Production by State");
 
-    var svg = d3.select("#area2").append("svg"),
-      width = +svg.attr("width", 960),
-      height = +svg.attr("height", 500);
+    var svg = d3.select("#methaneMap")
+      .append("svg")
+      .attr("preserveAspectRatio", "xMinYMin meet")
+      .attr("viewBox", "0 0 960 500");
 
     var usmap;
 

@@ -88,17 +88,24 @@ body {
 
 <body>
   <div class="row">
-    <h1 class="title"></h1></br>
 
-    <form>
-      <label for="year">Please select a year: </label>
-      <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
-      <output name="selected_year" id="selected_year">2013</output>
-    </form>
+    <div id="methaneMap" class="column">
 
-    <div id="methaneMap" class="column"></div>
+      <h1 class="title"></h1></br>
 
-    <div id="cowChart" class="column"></div>
+      <form>
+        <label for="year">Please select a year: </label>
+        <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
+        <output name="selected_year" id="selected_year">2013</output>
+      </form>
+
+    </div>
+
+    <div id="cowChart" class="column">
+
+      <h1 id="cowChartTitle" class="title"></h1></br>
+
+    </div>
   </div>
 
   <script>
@@ -127,12 +134,15 @@ body {
     // Adds the svg canvas
     var cowChart = d3.select("#cowChart")
       .append("svg")
-      // .attr("width", chartWidth + chartMargin.left + chartMargin.right)
-      // .attr("height", chartHeight + chartMargin.top + chartMargin.bottom)
       .attr("preserveAspectRatio", "xMinYMin meet")
       .attr("viewBox", "0 0 960 500")
       .append("g")
       .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
+
+    var chartTitle = "Milk Cows by State";
+    var cowCharttitle = d3.select("#cowChartTitle")
+      .text(chartTitle);
+
 
     // Get the data
     d3.csv("data2.csv", function (error, data) {

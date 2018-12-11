@@ -147,18 +147,23 @@ body {
     // Get the data
     d3.csv("data2.csv", function (error, data) {
       data.forEach(function (d) {
-        // console.log(d.state);
-        return d.state;
+
+        console.log(d.state);
+        console.log(d.value);
+
+        d.value = +d.value;
+
+        return d.value;
       });
 
       // Scale the range of the data
       x.domain(d3.extent(data, function (d) { return d.state; }));
       y.domain([0, d3.max(data, function (d) { return d.value; })]);
 
-      // Add the valueline path.
-      cowChart.append("path")
-        .attr("class", "line")
-        .attr("d", valueline(data));
+      // // Add the valueline path.
+      // cowChart.append("path")
+      //   .attr("class", "line")
+      //   .attr("d", valueline(d.value));
 
       // Add the X Axis
       cowChart.append("g")

@@ -122,6 +122,10 @@ body {
 
     <div id="cowChart" class="column">
 
+      <div id="option">
+        <input name="updateButton" type="button" value="Update" onclick="updateData()" />
+      </div>
+
       <h1 id="cowChartTitle" class="title"></h1></br>
 
     </div>
@@ -383,4 +387,35 @@ body {
     slider.on('change', function () {
       draw(this.value);
     });
+
+    // goes to the onclick event listener of the 'update' button
+    function updateData() {
+
+      // Get the data again
+      d3.csv("data2.csv", function (error, data) {
+        data.forEach(function (d) {
+          d.value = +d.value;
+        });
+
+        // Scale the range of the data again 
+        x.domain(d3.extent(data, function (d) { return d.state; }));
+        y.domain([0, d3.max(data, function (d) { return d.value; })]);
+
+        // Select the section we want to apply our changes to
+        var svg = d3.select("#cowChart").transition();
+
+        // Make the changes 
+
+        // svg.select(".line")   // change the line
+        //   .duration(750)
+        //   .attr("d", valueline(data));
+        svg.select(".x.axis") // change the x axis
+          .duration(750)
+          .call(xAxis);
+        svg.select(".y.axis") // change the y axis
+          .duration(750)
+          .call(yAxis);
+
+      });
+    }
   </script>

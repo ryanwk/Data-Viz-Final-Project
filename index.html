@@ -138,32 +138,6 @@ body {
       chartWidth = 600 - chartMargin.left - chartMargin.right,
       chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
-    // Set the ranges cowChart
-    var x = d3.scale.ordinal().range([0, chartWidth]);
-    var y = d3.scale.linear().range([chartHeight, 0]);
-
-    // Define the axes cowChart
-    var xAxis = d3.svg.axis().scale(x)
-      .orient("bottom").ticks(5);
-
-    var yAxis = d3.svg.axis().scale(y)
-      .orient("left").ticks(5);
-
-    // Adds the svg canvas
-    var cowChart = d3.select("#cowChart")
-      .append("svg")
-      .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 0 960 500")
-      .append("g")
-      .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
-
-
-    // chart name; made it a var so we could dynamically change it
-    var chartTitle = "Milk Cows by State";
-    var cowCharttitle = d3.select("#cowChartTitle")
-      .text(chartTitle);
-
-
     // Get the data
     d3.csv("data1.csv", function (error, data) {
       data.forEach(function (d) {
@@ -171,9 +145,39 @@ body {
         return d.value;
       });
 
+      // Scale it
+      var x = d3.scale.ordinal()
+        .domain(data.map(function (d) { return d.state; }))
+        .rangeRoundBands([0, chartWidth], .1);
+
+      var y = d3.scale.linear()
+        .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
+        .range([chartHeight, 0]);
+
+      // Define the axes cowChart
+      var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom").ticks(10);
+
+      var yAxis = d3.svg.axis().scale(y)
+        .orient("left").ticks(10);
+
+      // Adds the svg canvas
+      var cowChart = d3.select("#cowChart")
+        .append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 960 500")
+        .append("g")
+        .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
+
+
+      // chart name; made it dynamically change
+      var chartTitle = "Milk Cows by State";
+      var cowCharttitle = d3.select("#cowChartTitle")
+        .text(chartTitle);
+
       // Scale the range of the data
-      x.domain(d3.extent(data, function (d) { return d.state; }));
-      y.domain([0, d3.max(data, function (d) { return d.value; })]);
+      // x.domain(d3.extent(data, function (d) { return d.state; }));
+      // y.domain([0, d3.max(data, function (d) { return d.value; })]);
 
       // give the barz some space
       var barPadding = 1;
@@ -215,7 +219,8 @@ body {
         .attr("fill", "black")
         .attr("text-anchor", "middle");
 
-
+      // put rects linked to data2 in here to build bar chart
+      // or go with a line chart and use the following code..
       // Define the line 
       var valueline = d3.svg.line()
         .x(function (d) { return x(d.state); })
@@ -406,6 +411,8 @@ body {
 
         // Make the changes 
 
+        // put rects linked to data2 in here to build bar chart
+        // or go with a line chart and use the following code..
         // svg.select(".line")   // change the line
         //   .duration(750)
         //   .attr("d", valueline(data));

@@ -4,7 +4,6 @@
 <head>
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <!-- <script src="//d3js.org/d3.v4.min.js"></script> -->
   <script src="http://d3js.org/queue.v1.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.1/crossfilter.min.js"></script>
@@ -19,22 +18,11 @@
   font-weight: 400;
 }
 
-.d3-tip {
-  line-height: 1.5;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 0px;
-  text-align: center;
-}
-
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 12px;
   font-weight: 400;
   background-color: #fff;
-  /* width: 960px;
-  height: 800px; */
   margin-top: 10px;
 }
 
@@ -49,19 +37,42 @@ body {
 .q7{fill:rgb(189,0,38)}
 .q8{fill:rgb(128,0,38)}
 
-    path {
-      stroke: black;
-      stroke-width: 1;
-      fill: none;
-    }
+ /* bar chart styling */
+   .bar {
+  fill: steelblue;
+}
 
-    .axis path,
-    .axis line {
-      fill: none;
-      stroke: grey;
-      stroke-width: 2;
-      shape-rendering: crispEdges;
-    }
+.bar:hover {
+  fill: lightblue;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: #222;
+  color: #fff;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+  visibility: hidden;
+}
 
 * {
   box-sizing: border-box;
@@ -82,73 +93,75 @@ body {
 }
 
   </style>
-
 </head>
 
-
 <body>
+
   <div class="row">
-    <h1 class="title"></h1></br>
 
-    <form>
-      <label for="year">Please select a year: </label>
-      <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
-      <output name="selected_year" id="selected_year">2013</output>
-    </form>
+    <div id="methaneMap" class="column">
+      <h1 class="title"></h1></br>
+      <form>
+        <label for="year">Please select a year: </label>
+        <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
+        <output name="selected_year" id="selected_year">2013</output>
+      </form>
+    </div>
 
-    <div id="methaneMap" class="column"></div>
+    <div id="cowChart" class="column">
+      <div id="option">
+        <input name="updateButton" type="button" value="Update" onclick="updateData()" />
+      </div>
+      <h1 id="cowChartTitle" class="title"></h1></br>
+    </div>
 
-    <div id="cowChart" class="column"></div>
   </div>
 
   <script>
 
-    // Set the dimensions of the cowChart
+    // Set the dimensions of cowChart
     var chartMargin = { top: 30, right: 20, bottom: 30, left: 50 },
       chartWidth = 600 - chartMargin.left - chartMargin.right,
       chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
-    // Set the ranges cowChart
-    var x = d3.time.scale().range([0, chartWidth]);
-    var y = d3.scale.linear().range([chartHeight, 0]);
-
-    // Define the axes cowChart
-    var xAxis = d3.svg.axis().scale(x)
-      .orient("bottom").ticks(5);
-
-    var yAxis = d3.svg.axis().scale(y)
-      .orient("left").ticks(5);
-
-    // Define the line 
-    var valueline = d3.svg.line()
-      .x(function (d) { return x(d.state); })
-      .y(function (d) { return y(d.value); });
-
-    // Adds the svg canvas
-    var cowChart = d3.select("#cowChart")
-      .append("svg")
-      // .attr("width", chartWidth + chartMargin.left + chartMargin.right)
-      // .attr("height", chartHeight + chartMargin.top + chartMargin.bottom)
-      .attr("preserveAspectRatio", "xMinYMin meet")
-      .attr("viewBox", "0 0 960 500")
-      .append("g")
-      .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
-
     // Get the data
-    d3.csv("data2.csv", function (error, data) {
+    d3.csv("data1.csv", function (error, data) {
       data.forEach(function (d) {
-        // console.log(d.state);
-        return d.state;
+        // not sure if the two following lines are necessary
+        d.value = +d.value;
+        return d.value;
       });
 
-      // Scale the range of the data
-      x.domain(d3.extent(data, function (d) { return d.state; }));
-      y.domain([0, d3.max(data, function (d) { return d.value; })]);
+      // Scale cowChart
+      var x = d3.scale.ordinal()
+        .domain(data.map(function (d) { return d.state; }))
+        .rangeRoundBands([0, chartWidth], .1);
 
-      // Add the valueline path.
-      cowChart.append("path")
-        .attr("class", "line")
-        .attr("d", valueline(data));
+      var y = d3.scale.linear()
+        .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
+        .range([chartHeight, 0]);
+
+      // Define the axis cowChart
+      var xAxis = d3.svg.axis().scale(x)
+        .orient("bottom").ticks(10);
+
+      var yAxis = d3.svg.axis().scale(y)
+        .orient("left").ticks(10);
+
+      // Adds the svg canvas, preserveAspectRatio makes the svg fit to the div dynamically
+      var cowChart = d3.select("#cowChart")
+        .append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 960 500")
+        .append("g")
+        .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
+
+
+      // chart name
+      var chartTitle = "Milk Cows by State";
+      var cowCharttitle = d3.select("#cowChartTitle")
+        .text(chartTitle);
+
 
       // Add the X Axis
       cowChart.append("g")
@@ -156,15 +169,135 @@ body {
         .attr("transform", "translate(0," + chartHeight + ")")
         .call(xAxis);
 
+      // text label for the x axis
+      cowChart.append("text")
+        .attr("x", chartWidth / 2)
+        .attr("y", (chartHeight + 20) + chartMargin.bottom)
+        .style("text-anchor", "middle")
+        .style("font-size", "25px")
+        .text("State");
+
       // Add the Y Axis
       cowChart.append("g")
         .attr("class", "y axis")
         .call(yAxis);
 
+      // label for y axis
+      cowChart.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - chartMargin.left)
+        .attr("x", 0 - ((chartHeight + 20) / 2))
+        .attr("dy", "1em")
+        .style("font-size", "20px")
+        .style("text-anchor", "middle")
+        .text("Value");
+
+      // //cowChart title - ugly ass title
+      // cowChart.append("text")
+      //   .attr("x", (chartWidth / 2))
+      //   .attr("y", 0 - (chartMargin.top / 2))
+      //   .attr("text-anchor", "middle")
+      //   .style("font-size", "25px")
+      //   .style("text-decoration", "underline")
+      //   .text("Cows per State");
+
+      // give bars some room
+      var barPadding = 1;
+
+      // I used a different resource to build the cowChart 
+      // but used the following resource to build the bars
+      // https://bl.ocks.org/tpham27/37d682cc63fc29da314c6d28417fce3
+      // something fucky is going on with the bars
+      // they all huddled ontop of eachother like it's cold out
+
+      // might have to mess with the x,y,width,height attributes
+      // got the basis for those attrs here: https://leanpub.com/D3-Tips-and-Tricks/read#leanpub-auto-setting-up-the-margins-and-the-graph-area
+
+      // cowChart bars on bars on bars
+      var bar = cowChart.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("width", chartWidth / data.length - barPadding)
+        .attr("height", function (d) {
+          return d.value;  //Just the data value
+        })
+        .attr("x", function (d, i) {
+          return i * (chartWidth / d.length - barPadding);
+        })
+        .attr("y", function (d) {
+          return chartHeight - d.value;  //Height minus data value
+        })
+        .attr("fill", function (d) {
+          return "rgb(0, 0, " + (d.value * 10) + ")";
+        });
+      // animation make it jump
+      bar.transition()
+        .duration(1500)
+        .ease("elastic")
+        .attr("y", function (d) { return y(d.state.length); })
+        .attr("height", function (d) { return chartHeight - y(d.state.length); });
+
+      // Tooltip
+      var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip");
+
+      bar.on("mouseover", function (d) {
+        tooltip.html(d.value)
+          .style("visibility", "visible");
+      })
+        .on("mousemove", function (d) {
+          tooltip.style("top", event.pageY - (tooltip[0][0].clientHeight + 5) + "px")
+            .style("left", event.pageX - (tooltip[0][0].clientWidth / 2.0) + "px");
+        })
+        .on("mouseout", function (d) {
+          tooltip.style("visibility", "hidden");
+        });
     });
 
-    // methane map
 
+    // uncomment below for the update button
+    //it doesn't work yet but heres a start...
+
+    // // onclick event listener of the 'update' button
+    // function updateData() {
+    //   // Get new data son
+    //   d3.csv("data2.csv", function (error, data) {
+    //     data.forEach(function (d) {
+    //       d.value = +d.value;
+    //     });
+
+    //     // Select the chart
+    //     var cowChart = d3.select("#cowChart").transition();
+
+    //     // Make the changes 
+
+    //     // Scale it
+    //     var x = d3.scale.ordinal()
+    //       .domain(data.map(function (d) { return d.state; }))
+    //       .rangeRoundBands([0, chartWidth], .1);
+
+    //     var y = d3.scale.linear()
+    //       .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
+    //       .range([chartHeight, 0]);
+    //     // Define the axis cowChart
+    //     var xAxis = d3.svg.axis().scale(x)
+    //       .orient("bottom").ticks(10);
+
+    //     var yAxis = d3.svg.axis().scale(y)
+    //       .orient("left").ticks(10);
+
+    //     cowChart.select(".x axis") // change the x axis
+    //       .duration(750)
+    //       .call(xAxis);
+    //     cowChart.select(".y axis") // change the y axis
+    //       .duration(750)
+    //       .call(yAxis);
+
+    //   });
+    // }
+
+    // methane map
     var title = d3.select("h1")
       .text("Methane Production by State");
 
@@ -278,11 +411,11 @@ body {
         })
         .attr("id", function (d) { return d.COUNTY; })
         .attr("d", path)
-
     }
 
     var slider = d3.select('#year');
     slider.on('change', function () {
       draw(this.value);
     });
+
   </script>

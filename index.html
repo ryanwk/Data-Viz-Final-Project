@@ -47,40 +47,42 @@ body {
 .q7{fill:rgb(189,0,38)}
 .q8{fill:rgb(128,0,38)}
 
-    path {
-      stroke: black;
-      stroke-width: 1;
-      fill: none;
-    }
+ /* bar chart styling */
+   .bar {
+  fill: steelblue;
+}
 
-    .axis line {
-      stroke: black;
-      stroke-width: 30;
-      shape-rendering: crispEdges;
-    }
-    /* .text {
-      font-family: 'Open Sans', sans-serif;
-      font-size: 30px;
-      font-weight: 400;
-      stroke: black;
-      stroke-width: 2;
-    } */
+.bar:hover {
+  fill: lightblue;
+}
 
-    .yaxis {
-      font-family: 'Open Sans', sans-serif;
-      font-size: 20px;
-      /* font-weight: 400; */
-      stroke: black;
-      /* stroke-width: 2; */
-    }
+.axis text {
+  font: 10px sans-serif;
+}
 
-    .xaxis {
-      font-family: 'Open Sans', sans-serif;
-      font-size: 20px;
-      /* font-weight: 400; */
-      stroke: black;
-      /* stroke-width: 2; */
-    }
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: #222;
+  color: #fff;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+  visibility: hidden;
+}
 
 * {
   box-sizing: border-box;
@@ -154,7 +156,7 @@ body {
         .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
         .range([chartHeight, 0]);
 
-      // Define the axes cowChart
+      // Define the axis cowChart
       var xAxis = d3.svg.axis().scale(x)
         .orient("bottom").ticks(10);
 
@@ -175,65 +177,13 @@ body {
       var cowCharttitle = d3.select("#cowChartTitle")
         .text(chartTitle);
 
-      // Scale the range of the data
-      // x.domain(d3.extent(data, function (d) { return d.state; }));
-      // y.domain([0, d3.max(data, function (d) { return d.value; })]);
 
       // give the barz some space
       var barPadding = 1;
-      // make tha barz
-      cowChart.selectAll("rect")
-        .data(data)
-        .enter()
-        .append("rect")
-        .attr("width", chartWidth / data.length - barPadding)
-        .attr("height", function (d) {
-          return d.value;  //Just the data value
-        })
-        .attr("x", function (data, i) {
-          return i * (chartWidth / data.length - barPadding);
-        })
-        .attr("y", function (data) {
-          return chartHeight - data.value;  //Height minus data value
-        })
-        .attr("fill", function (d) {
-          return "rgb(0, 0, " + (d.value * 10) + ")";
-        });
-
-      // label barz
-      cowChart.selectAll("text")
-        .data(data)
-        .enter()
-        .append("text")
-        .text(function (d) {
-          return d.value;
-        })
-        .attr("x", function (d, i) {
-          return i * (chartWidth / data.length) + (chartWidth / data.length - barPadding) / 2;
-        })
-        .attr("y", function (d) {
-          return chartHeight - (d.value * 4) + 14;
-        })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px")
-        .attr("fill", "black")
-        .attr("text-anchor", "middle");
-
-      // put rects linked to data2 in here to build bar chart
-      // or go with a line chart and use the following code..
-      // Define the line 
-      var valueline = d3.svg.line()
-        .x(function (d) { return x(d.state); })
-        .y(function (d) { return y(d.value); });
-
-      // Add the valueline path.
-      cowChart.append("rect")
-        .attr("class", "rect")
-        .attr("d", valueline(data));
 
       // Add the X Axis
       cowChart.append("g")
-        .attr("class", "xaxis")
+        .attr("class", "x axis")
         .attr("transform", "translate(0," + chartHeight + ")")
         .call(xAxis);
 
@@ -247,10 +197,10 @@ body {
 
       // Add the Y Axis
       cowChart.append("g")
-        .attr("class", "yaxis")
+        .attr("class", "y axis")
         .call(yAxis);
 
-      cowChart.append("text")  // text labe for y axis
+      cowChart.append("text")  // text label for y axis
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - chartMargin.left)
         .attr("x", 0 - (chartHeight / 2))
@@ -268,10 +218,54 @@ body {
         .style("text-decoration", "underline")
         .text("Cows per State");
 
+      // Bars
+      var bar = cowChart.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("width", chartWidth / data.length - barPadding)
+        .attr("height", function (d) {
+          return d.value;  //Just the data value
+        })
+        .attr("x", function (d, i) {
+          return i * (chartWidth / d.length - barPadding);
+        })
+        .attr("y", function (d) {
+          return chartHeight - d.value;  //Height minus data value
+        })
+        .attr("fill", function (d) {
+          return "rgb(0, 0, " + (d.value * 10) + ")";
+        });
+
+      bar.transition()
+        .duration(1500)
+        .ease("elastic")
+        .attr("y", function (d) { return y(d.value); })
+        .attr("height", function (d) { return chartHeight - y(d.value); });
+
+      // Tooltips
+      var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip");
+
+      bar.on("mouseover", function (d) {
+        tooltip.html(d.value)
+          .style("visibility", "visible");
+      })
+        .on("mousemove", function (d) {
+          tooltip.style("top", event.pageY - (tooltip[0][0].clientHeight + 5) + "px")
+            .style("left", event.pageX - (tooltip[0][0].clientWidth / 2.0) + "px");
+        })
+        .on("mouseout", function (d) {
+          tooltip.style("visibility", "hidden");
+        });
     });
 
-    // methane map
 
+
+
+    // });
+
+    // methane map
     var title = d3.select("h1")
       .text("Methane Production by State");
 
@@ -394,35 +388,35 @@ body {
     });
 
     // goes to the onclick event listener of the 'update' button
-    function updateData() {
+    // function updateData() {
 
-      // Get the data again
-      d3.csv("data2.csv", function (error, data) {
-        data.forEach(function (d) {
-          d.value = +d.value;
-        });
+    //   // Get the data again
+    //   d3.csv("data2.csv", function (error, data) {
+    //     data.forEach(function (d) {
+    //       d.value = +d.value;
+    //     });
 
-        // Scale the range of the data again 
-        x.domain(d3.extent(data, function (d) { return d.state; }));
-        y.domain([0, d3.max(data, function (d) { return d.value; })]);
+    //     // Select the section we want to apply our changes to
+    //     var cowChart2 = d3.select("#cowChart").transition();
 
-        // Select the section we want to apply our changes to
-        var svg = d3.select("#cowChart").transition();
+    //     // Make the changes 
 
-        // Make the changes 
+    //     // Scale it
+    //     var x = d3.scale.ordinal()
+    //       .domain(data.map(function (d) { return d.state; }))
+    //       .rangeRoundBands([0, chartWidth], .1);
 
-        // put rects linked to data2 in here to build bar chart
-        // or go with a line chart and use the following code..
-        // svg.select(".line")   // change the line
-        //   .duration(750)
-        //   .attr("d", valueline(data));
-        svg.select(".x.axis") // change the x axis
-          .duration(750)
-          .call(xAxis);
-        svg.select(".y.axis") // change the y axis
-          .duration(750)
-          .call(yAxis);
+    //     var y = d3.scale.linear()
+    //       .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
+    //       .range([chartHeight, 0]);
 
-      });
-    }
+    //     cowChart2.select(".xaxis") // change the x axis
+    //       .duration(750)
+    //       .call(xAxis);
+    //     cowChart2.select(".yaxis") // change the y axis
+    //       .duration(750)
+    //       .call(yAxis);
+
+    //   });
+    // }
   </script>

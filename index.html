@@ -47,7 +47,7 @@ body {
 }
 
 .axis text {
-  font: 10px sans-serif;
+  font: 20px sans-serif;
 }
 
 .axis path,
@@ -223,7 +223,7 @@ body {
           return d.value;  //Just the data value
         })
         .attr("x", function (d, i) {
-          return i * (chartWidth / d.length - barPadding);
+          return i * (chartWidth / 12 - barPadding);
         })
         .attr("y", function (d) {
           return chartHeight - d.value;  //Height minus data value

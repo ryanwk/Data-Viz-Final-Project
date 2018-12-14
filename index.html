@@ -264,38 +264,38 @@ body {
     // function updateData() {
     //   // Get new data son
     //   d3.csv("data2.csv", function (error, data) {
-    //     data.forEach(function (d) {
-    //       d.value = +d.value;
-    //     });
-
-    //     // Select the chart
-    //     var cowChart = d3.select("#cowChart").transition();
-
-    //     // Make the changes 
-
-    //     // Scale it
-    //     var x = d3.scale.ordinal()
-    //       .domain(data.map(function (d) { return d.state; }))
-    //       .rangeRoundBands([0, chartWidth], .1);
-
-    //     var y = d3.scale.linear()
-    //       .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
-    //       .range([chartHeight, 0]);
-    //     // Define the axis cowChart
-    //     var xAxis = d3.svg.axis().scale(x)
-    //       .orient("bottom").ticks(10);
-
-    //     var yAxis = d3.svg.axis().scale(y)
-    //       .orient("left").ticks(10);
-
-    //     cowChart.select(".x axis") // change the x axis
-    //       .duration(750)
-    //       .call(xAxis);
-    //     cowChart.select(".y axis") // change the y axis
-    //       .duration(750)
-    //       .call(yAxis);
-
+    //     // data.forEach(function (d) {
+    //     //   d.value = +d.value;
     //   });
+
+    //   // Select the chart
+    //   var cowChart = d3.select("#cowChart").transition();
+
+    //   // Make the changes 
+
+    //   // Scale it
+    //   var x = d3.scale.ordinal()
+    //     .domain(data.map(function (d) { return d.state; }))
+    //     .rangeRoundBands([0, chartWidth], .1);
+
+    //   var y = d3.scale.linear()
+    //     .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
+    //     .range([chartHeight, 0]);
+    //   // Define the axis cowChart
+    //   var xAxis = d3.svg.axis().scale(x)
+    //     .orient("bottom").ticks(10);
+
+    //   var yAxis = d3.svg.axis().scale(y)
+    //     .orient("left").ticks(10);
+
+    //   cowChart.select(".x axis") // change the x axis
+    //     .duration(750)
+    //     .call(xAxis);
+    //   cowChart.select(".y axis") // change the y axis
+    //     .duration(750)
+    //     .call(yAxis);
+
+    // });
     // }
 
     // methane map
@@ -388,6 +388,7 @@ body {
     function ready(error, us) {
       if (error) throw error;
       usmap = us;
+      // step 1, instead of polutionByID give it name of the csvfile '2013cowdata.csv'
       data['2013'] = polutionById2013;
       data['2014'] = polutionById2014;
       data['2015'] = polutionById2015;
@@ -417,6 +418,7 @@ body {
     var slider = d3.select('#year');
     slider.on('change', function () {
       draw(this.value);
+      // draw barchat this.value
     });
 
   </script>

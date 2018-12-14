@@ -42,6 +42,16 @@ text {
 .q7{fill:rgb(189,0,38)}
 .q8{fill:rgb(128,0,38)}
 
+.c0{fill:rgb(247,252,245)} 
+.c1{fill:rgb(229,245,224)} 
+.c2{fill:rgb(199,233,192)} 
+.c3{fill:rgb(161,217,155)} 
+.c4{fill:rgb(116,196,118)} 
+.c5{fill:rgb(65,171,93)} 
+.c6{fill:rgb(35,139,69)} 
+.c7{fill:rgb(0,109,44)} 
+.c8{fill:rgb(0,68,27)}
+
  /* bar chart styling */
    .bar {
   fill: steelblue;
@@ -49,6 +59,9 @@ text {
 
 .bar:hover {
   fill: lightblue;
+}
+path:hover {
+  opacity: 0.4;
 }
 
 .axis text {
@@ -67,6 +80,18 @@ text {
 }
 
 .tooltip {
+  position: absolute;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: #222;
+  color: #fff;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+  visibility: hidden;
+}
+.tooltip2 {
   position: absolute;
   padding: 10px;
   font: 12px sans-serif;
@@ -97,10 +122,33 @@ text {
   clear: both;
 }
 
+/* this is the style of an unchecked "button" */
+    .input-check.checked{
+        
+        background:green;
+        
+        color:white
+    }
+    /* This is the style for a checked "button" */
+    .input-check{
+      display:inline-block;
+        height:20px;
+        padding:5px 8px;
+        width:70px;
+        background:red;
+        color:black;
+        font-weight:bold
+    }
+    /* Hide the checkbox */
+    .input-check input{
+        display:none
+    }
+
   </style>
 </head>
 
 <body>
+
 
   <div class="row">
 
@@ -111,6 +159,8 @@ text {
         <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
         <output name="selected_year" id="selected_year">2013</output>
       </form>
+      <label class="input-check"><input onchange="change_state(this)" type="checkbox" /> <div>methane</div> </label>
+
     </div>
 
     <div id="cowChart" class="column">
@@ -118,10 +168,12 @@ text {
     </div>
 
   </div>
+  
 
   <script>
   var selections = ['AR', 'TX', 'MA', 'NM', 'UT', 'OH', 'MO', 'NY', 'NC']
   var datafiles = {}
+  var maptype = 1;
   function drawBarChart(year){
     d3.select("#cowChart").select("svg").remove()
     // Set the dimensions of cowChart
@@ -162,7 +214,7 @@ text {
       var cowChart = d3.select("#cowChart")
         .append("svg")
         .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", "0 0 960 500")
+        .attr("viewBox", "0 0 750 500")
         .append("g")
         .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
 
@@ -202,29 +254,8 @@ text {
         .style("text-anchor", "middle")
         .text("Value");
 
-      // //cowChart title - ugly ass title
-      // cowChart.append("text")
-      //   .attr("x", (chartWidth / 2))
-      //   .attr("y", 0 - (chartMargin.top / 2))
-      //   .attr("text-anchor", "middle")
-      //   .style("font-size", "25px")
-      //   .style("text-decoration", "underline")
-      //   .text("Cows per State");
-
       // give bars some room
       var barPadding = 1;
-
-      // I used a different resource to build the cowChart 
-      // but used the following resource to build the bars
-      // https://bl.ocks.org/tpham27/37d682cc63fc29da314c6d28417fce3
-      // something fucky is going on with the bars
-      // they all huddled ontop of eachother like it's cold out
-
-      // might have to mess with the x,y,width,height attributes
-      // got the basis for those attrs here: https://leanpub.com/D3-Tips-and-Tricks/read#leanpub-auto-setting-up-the-margins-and-the-graph-area
-
-      // cowChart bars on bars on bars
-
 
       var bar = cowChart.selectAll(".bar")
         .data(data)
@@ -248,19 +279,14 @@ text {
           if (selections.includes(d.state))
             return "rgb(0, 0, " + (d.value * 10) + ")";
         });
-      // animation make it jump
-      /* bar.transition()
-         .duration(1500)
-         .ease("elastic")
-         .attr("y", function (d) { return y(d.state.length); })
-         .attr("height", function (d) { return chartHeight - y(d.state.length); });
- */
+ 
       // Tooltip
+      d3.select(".tooltip").remove()
       var tooltip = d3.select("body").append("div")
         .attr("class", "tooltip");
 
       bar.on("mouseover", function (d) {
-        tooltip.html(d.value)
+        tooltip.html(d.value + " thousand cows")
           .style("visibility", "visible");
       })
         .on("mousemove", function (d) {
@@ -273,46 +299,6 @@ text {
     });
   }
 
-    // uncomment below for the update button
-    //it doesn't work yet but heres a start...
-
-    // // onclick event listener of the 'update' button
-    // function updateData() {
-    //   // Get new data son
-    //   d3.csv("data2.csv", function (error, data) {
-    //     // data.forEach(function (d) {
-    //     //   d.value = +d.value;
-    //   });
-
-    //   // Select the chart
-    //   var cowChart = d3.select("#cowChart").transition();
-
-    //   // Make the changes 
-
-    //   // Scale it
-    //   var x = d3.scale.ordinal()
-    //     .domain(data.map(function (d) { return d.state; }))
-    //     .rangeRoundBands([0, chartWidth], .1);
-
-    //   var y = d3.scale.linear()
-    //     .domain([0, d3.max(data, function (d) { return d.value; }) * 1.1])
-    //     .range([chartHeight, 0]);
-    //   // Define the axis cowChart
-    //   var xAxis = d3.svg.axis().scale(x)
-    //     .orient("bottom").ticks(10);
-
-    //   var yAxis = d3.svg.axis().scale(y)
-    //     .orient("left").ticks(10);
-
-    //   cowChart.select(".x axis") // change the x axis
-    //     .duration(750)
-    //     .call(xAxis);
-    //   cowChart.select(".y axis") // change the y axis
-    //     .duration(750)
-    //     .call(yAxis);
-
-    // });
-    // }
 
     // methane map
     var title = d3.select("h1")
@@ -325,9 +311,12 @@ text {
 
     var usmap;
 
-    var quantize3 = d3.scale.quantize()
-      .domain([58201, 50203393])
-      .range(d3.range(8).map(function (i) { return "q" + i; }));
+    var quantize3 = d3.scale.log()
+      .domain([162432, 412011301])
+
+    var quantize4 = d3.scale.quantize()
+      .domain([0, 1])
+      .range(d3.range(8).map(function (i) { return "c" + i; }));
 
     var quantize = d3.scale.log()
       .domain([58201, 50203393]);
@@ -337,11 +326,17 @@ text {
       .range(d3.range(8).map(function (i) { return "q" + i; }));
 
     var data = {};
+    var codata = {};
     var polutionById2013 = d3.map();
     var polutionById2014 = d3.map();
     var polutionById2015 = d3.map();
     var polutionById2016 = d3.map();
     var polutionById2017 = d3.map();
+    var coById2013 = d3.map();
+    var coById2014 = d3.map();
+    var coById2015 = d3.map();
+    var coById2016 = d3.map();
+    var coById2017 = d3.map();
     var stateFips = d3.map();
 
     var path = d3.geo.path();
@@ -400,6 +395,59 @@ text {
           polutionById2017.set(d.STATE, parseInt(d.VALUE));
 
       })
+      .defer(d3.csv, "co2013.csv", function (d) {
+        if (typeof coById2013.get(d.STATE) !== 'undefined') {
+          var sumdata = coById2013.get(d.STATE);
+          sumdata += parseInt(d.VALUE);
+          coById2013.set(d.STATE, sumdata);
+        }
+        else {
+          coById2013.set(d.STATE, parseInt(d.VALUE));
+        }
+
+      })
+      .defer(d3.csv, "co2014.csv", function (d) {
+        if (typeof coById2014.get(d.STATE) !== 'undefined') {
+          var sumdata = coById2014.get(d.STATE);
+          sumdata += parseInt(d.VALUE);
+          coById2014.set(d.STATE, sumdata);
+        }
+        else {
+          coById2014.set(d.STATE, parseInt(d.VALUE));
+        }
+
+      })
+      .defer(d3.csv, "co2015.csv", function (d) {
+        if (typeof coById2015.get(d.STATE) !== 'undefined') {
+          var sumdata = coById2015.get(d.STATE);
+          sumdata += parseInt(d.VALUE);
+          coById2015.set(d.STATE, sumdata);
+        }
+        else {
+          coById2015.set(d.STATE, parseInt(d.VALUE));
+        }
+
+      })
+      .defer(d3.csv, "co2016.csv", function (d) {
+        if (typeof coById2016.get(d.STATE) !== 'undefined') {
+          var sumdata = coById2016.get(d.STATE);
+          sumdata += parseInt(d.VALUE);
+          coById2016.set(d.STATE, sumdata);
+        }
+        else
+          coById2016.set(d.STATE, parseInt(d.VALUE));
+
+      })
+      .defer(d3.csv, "2017.csv", function (d) {
+        if (typeof coById2017.get(d.STATE) !== 'undefined') {
+          var sumdata = coById2017.get(d.STATE);
+          sumdata += parseInt(d.VALUE);
+          coById2017.set(d.STATE, sumdata);
+        }
+        else
+          coById2017.set(d.STATE, parseInt(d.VALUE));
+
+      })
       .defer(d3.csv, "state-fips.csv", function (d) {
         stateFips.set(d.state, d.state_abbr);
       })
@@ -414,6 +462,11 @@ text {
       data['2015'] = polutionById2015;
       data['2016'] = polutionById2016;
       data['2017'] = polutionById2017;
+      codata['2013'] = coById2013;
+      codata['2014'] = coById2014;
+      codata['2015'] = coById2015;
+      codata['2016'] = coById2016;
+      codata['2017'] = coById2017;
       datafiles['2013'] = "cows2013.csv";
       datafiles['2014'] = "cows2014.csv";
       datafiles['2015'] = "cows2015.csv";
@@ -425,7 +478,15 @@ text {
     }
 
     function draw(year) {
-      mapping = data[year];
+      var min = 100000000000;
+      var max = 0;
+      if (maptype == 1){
+        mapping = data[year];
+      }
+      else {
+        mapping = codata[year];
+      }
+      d3.select(".counties").remove();
       svg.append("g")
         .attr("class", "counties")
         .selectAll("path")
@@ -435,7 +496,17 @@ text {
 
           sname = stateFips.get(d.id);
           var dataval = mapping.get(sname);
-          return quantize2(quantize(dataval));
+          //console.log(dataval)
+          if (parseInt(dataval) < min)
+            min = parseInt(dataval)
+          if (parseInt(dataval) > max)
+            max = parseInt(dataval)
+          if (maptype == 1)
+            return quantize2(quantize(dataval));
+          else {
+            return quantize4(quantize3(dataval));
+          }
+
         })
         .attr("id", function (d) { return d.COUNTY; })
         .attr("d", path)
@@ -445,14 +516,59 @@ text {
           else
             selections.push(stateFips.get(d.id))
           drawBarChart(year)
-          console.log(selections)
+          //console.log(selections)
         });
+
+        d3.select(".tooltip2").remove()
+        var tooltip2 = d3.select("#methaneMap").append("div")
+        .attr("class", "tooltip2");
+
+      d3.selectAll("path").on("mouseover", function (d) {
+        sname = stateFips.get(d.id);
+        var dataval = mapping.get(sname);
+        if (maptype == 1)
+          tooltip2.html(dataval + " metric tons of methane")
+            .style("visibility", "visible");
+        else 
+          tooltip2.html(dataval + " metric tons of co2")
+            .style("visibility", "visible");
+      })
+        .on("mousemove", function (d) {
+          tooltip2.style("top", event.pageY - (tooltip2[0][0].clientHeight + 5) + "px")
+            .style("left", event.pageX - (tooltip2[0][0].clientWidth / 2.0) + "px");
+        })
+        .on("mouseout", function (d) {
+          tooltip2.style("visibility", "hidden");
+        });
+
+        //console.log(min)
+        //console.log(max)
     }
 
     var slider = d3.select('#year');
     slider.on('change', function () {
+      slider.attr("value", this.value); 
       draw(this.value);
       drawBarChart(this.value);
     });
 
+
+    function change_state(obj){
+        if (obj.checked){
+            
+            obj.parentNode.classList.add("checked");
+            d3.select(".input-check").select("div").text("co2");
+            maptype = 2;
+            year = d3.select('#year').attr("value")
+            draw(year);
+        }
+        else{
+            //else remove it
+            obj.parentNode.classList.remove("checked");
+            d3.select(".input-check").select("div").text("methane");
+            maptype = 1;
+            year = d3.select('#year').attr("value")
+            draw(year);
+        }
+    }
   </script>

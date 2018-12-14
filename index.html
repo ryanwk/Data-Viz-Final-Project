@@ -121,6 +121,7 @@ text {
 
   <script>
   var selections = ['AR', 'TX', 'MA', 'NM', 'UT', 'OH', 'MO', 'NY', 'NC']
+  var datafiles = {}
   function drawBarChart(year){
     d3.select("#cowChart").select("svg").remove()
     // Set the dimensions of cowChart
@@ -129,7 +130,7 @@ text {
       chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
     // Get the data
-    d3.csv("cows2013.csv", function (error, data) {
+    d3.csv(datafiles[year], function (error, data) {
       data.forEach(function (d) {
         // not sure if the two following lines are necessary
         if (selections.includes(d.state))
@@ -413,8 +414,13 @@ text {
       data['2015'] = polutionById2015;
       data['2016'] = polutionById2016;
       data['2017'] = polutionById2017;
+      datafiles['2013'] = "cows2013.csv";
+      datafiles['2014'] = "cows2014.csv";
+      datafiles['2015'] = "cows2015.csv";
+      datafiles['2016'] = "cows2016.csv";
+      datafiles['2017'] = "cows2017.csv";
       draw('2013');
-      drawBarChart('2017');
+      drawBarChart('2013');
 
     }
 

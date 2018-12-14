@@ -20,12 +20,17 @@
 
 body {
   font-family: 'Open Sans', sans-serif;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 400;
   background-color: #fff;
   margin-top: 10px;
 }
-
+svg {
+  font-size: 10px;
+}
+text {
+  font-size: 10px;
+}
 
 .q0{fill:rgb(255,255,204)}
 .q1{fill:rgb(255,237,160)}
@@ -47,7 +52,7 @@ body {
 }
 
 .axis text {
-  font: 20px sans-serif;
+  font: 12px sans-serif;
 }
 
 .axis path,
@@ -109,36 +114,38 @@ body {
     </div>
 
     <div id="cowChart" class="column">
-      <div id="option">
-        <input name="updateButton" type="button" value="Update" onclick="updateData()" />
-      </div>
       <h1 id="cowChartTitle" class="title"></h1></br>
     </div>
 
   </div>
 
   <script>
-
+  var selections = ['AR', 'TX', 'MA', 'NM', 'UT', 'OH', 'MO', 'NY', 'NC']
+  function drawBarChart(year){
+    d3.select("#cowChart").select("svg").remove()
     // Set the dimensions of cowChart
     var chartMargin = { top: 30, right: 20, bottom: 30, left: 50 },
       chartWidth = 600 - chartMargin.left - chartMargin.right,
       chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
     // Get the data
-    d3.csv("data1.csv", function (error, data) {
+    d3.csv("cows2013.csv", function (error, data) {
       data.forEach(function (d) {
         // not sure if the two following lines are necessary
-        // d.value = +d.value;
+        if (selections.includes(d.state))
+         d.value = +d.value;
         // return d.value;
       });
 
       // Scale cowChart
       var x = d3.scale.ordinal()
-        .domain(data.map(function (d) { return d.state; }))
+        .domain(selections)
         .rangeRoundBands([0, chartWidth], .1);
 
       var y = d3.scale.linear()
-        .domain([0, d3.max(data, function (d) { return d.value; })])
+        .domain([0, d3.max(data, function (d) { 
+          if (selections.includes(d.state))
+            return d.value; })])
         .range([chartHeight, 0], 0.1);
 
       // Define the axis cowChart
@@ -147,6 +154,8 @@ body {
 
       var yAxis = d3.svg.axis().scale(y)
         .orient("left").ticks(10);
+
+
 
       // Adds the svg canvas, preserveAspectRatio makes the svg fit to the div dynamically
       var cowChart = d3.select("#cowChart")
@@ -174,7 +183,7 @@ body {
         .attr("x", chartWidth / 2)
         .attr("y", (chartHeight + 20) + chartMargin.bottom)
         .style("text-anchor", "middle")
-        .style("font-size", "25px")
+        .style("font-size", "14px")
         .text("State");
 
       // Add the Y Axis
@@ -188,7 +197,7 @@ body {
         .attr("y", 0 - chartMargin.left)
         .attr("x", 0 - ((chartHeight + 20) / 2))
         .attr("dy", "1em")
-        .style("font-size", "20px")
+        .style("font-size", "14px")
         .style("text-anchor", "middle")
         .text("Value");
 
@@ -214,23 +223,29 @@ body {
       // got the basis for those attrs here: https://leanpub.com/D3-Tips-and-Tricks/read#leanpub-auto-setting-up-the-margins-and-the-graph-area
 
       // cowChart bars on bars on bars
+
+
       var bar = cowChart.selectAll(".bar")
         .data(data)
         .enter().append("rect")
         .attr("class", "bar")
-        .attr("width", chartWidth / data.length - barPadding)
+        .attr("width", chartWidth / selections.length - barPadding)
         .attr("height", function (d) {
-          return y(0) - y(d.value);  //Just the data value
+          if (selections.includes(d.state))
+            return y(0) - y(d.value);  //Just the data value
         })
         .attr("x", function (d, i) {
-          return x(d.state)
+          if (selections.includes(d.state))
+            return x(d.state)
           //return i * ( - barPadding);
         })
         .attr("y", function (d) {
-          return y(d.value);  //Height minus data value
+          if (selections.includes(d.state))
+            return y(d.value);  //Height minus data value
         })
         .attr("fill", function (d) {
-          return "rgb(0, 0, " + (d.value * 10) + ")";
+          if (selections.includes(d.state))
+            return "rgb(0, 0, " + (d.value * 10) + ")";
         });
       // animation make it jump
       /* bar.transition()
@@ -255,7 +270,7 @@ body {
           tooltip.style("visibility", "hidden");
         });
     });
-
+  }
 
     // uncomment below for the update button
     //it doesn't work yet but heres a start...
@@ -308,6 +323,10 @@ body {
       .attr("viewBox", "0 0 960 500");
 
     var usmap;
+
+    var quantize3 = d3.scale.quantize()
+      .domain([58201, 50203393])
+      .range(d3.range(8).map(function (i) { return "q" + i; }));
 
     var quantize = d3.scale.log()
       .domain([58201, 50203393]);
@@ -395,6 +414,7 @@ body {
       data['2016'] = polutionById2016;
       data['2017'] = polutionById2017;
       draw('2013');
+      drawBarChart('2017');
 
     }
 
@@ -413,12 +433,20 @@ body {
         })
         .attr("id", function (d) { return d.COUNTY; })
         .attr("d", path)
+        .on("click", function(d){
+          if (selections.includes(stateFips.get(d.id)))
+            selections.splice(selections.indexOf(stateFips.get(d.id)), 1)
+          else
+            selections.push(stateFips.get(d.id))
+          drawBarChart(year)
+          console.log(selections)
+        });
     }
 
     var slider = d3.select('#year');
     slider.on('change', function () {
       draw(this.value);
-      // draw barchat this.value
+      drawBarChart(this.value);
     });
 
   </script>

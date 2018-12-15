@@ -434,7 +434,7 @@ path:hover {
             tooltip.html(d.value + " thousand cows")
               .style("visibility", "visible");
           else
-            tooltip.html(Math.round(d.value * 100) / 100 + " million cars")
+            tooltip.html(Math.round(d.value * 100) / 100 + " Million Cars")
               .style("visibility", "visible");
         })
           .on("mousemove", function (d) {
@@ -536,7 +536,7 @@ path:hover {
         if (typeof polutionById2017.get(d.STATE) !== 'undefined') {
           var sumdata = polutionById2017.get(d.STATE);
           sumdata += parseInt(d.VALUE);
-          polutionById2017.set(d.STATE, sumdata);
+          polutionById2017.set(d.STATE, sumdata); 4
         }
         else
           polutionById2017.set(d.STATE, parseInt(d.VALUE));
@@ -603,7 +603,6 @@ path:hover {
     function ready(error, us) {
       if (error) throw error;
       usmap = us;
-      // step 1, instead of polutionByID give it name of the csvfile '2013cowdata.csv'
       data['2013'] = polutionById2013;
       data['2014'] = polutionById2014;
       data['2015'] = polutionById2015;
@@ -626,8 +625,6 @@ path:hover {
       cardatafiles['2017'] = "cars2017.csv";
       drawBarChart('2013');
       draw('2013');
-
-
     }
 
     function draw(year) {
@@ -655,7 +652,6 @@ path:hover {
 
           sname = stateFips.get(d.id);
           var dataval = mapping.get(sname);
-          //console.log(dataval)
           if (parseInt(dataval) < min)
             min = parseInt(dataval)
           if (parseInt(dataval) > max)
@@ -675,7 +671,6 @@ path:hover {
           else
             selections.push(stateFips.get(d.id))
           drawBarChart(year)
-          //console.log(selections)
         });
 
       d3.select(".tooltip2").remove()
@@ -686,10 +681,10 @@ path:hover {
         sname = stateFips.get(d.id);
         var dataval = mapping.get(sname);
         if (maptype == 1)
-          tooltip2.html(sname + ": " + Math.round((dataval / 1000000 * 100)) / 100 + " million metric tons of methane")
+          tooltip2.html(sname + ": " + Math.round((dataval / 1000000 * 100)) / 100 + " Million Metric Tons of Methane")
             .style("visibility", "visible");
         else
-          tooltip2.html(sname + ": " + Math.round((dataval / 1000000 * 100)) / 100 + " million metric tons of co2")
+          tooltip2.html(sname + ": " + Math.round((dataval / 1000000 * 100)) / 100 + " Million Metric Tons of C02")
             .style("visibility", "visible");
       })
         .on("mousemove", function (d) {
@@ -699,9 +694,6 @@ path:hover {
         .on("mouseout", function (d) {
           tooltip2.style("visibility", "hidden");
         });
-
-      //console.log(min)
-      //console.log(max)
     }
 
     var slider = d3.select('#year');
@@ -717,7 +709,7 @@ path:hover {
       if (obj.checked) {
 
         obj.parentNode.classList.add("checked");
-        d3.select(".input-check").select("div").text("co2");
+        d3.select(".input-check").select("div").text("C02");
         maptype = 2;
         year = d3.select('#year').attr("value")
         drawBarChart(year);
@@ -725,14 +717,12 @@ path:hover {
 
       }
       else {
-        //else remove it
         obj.parentNode.classList.remove("checked");
-        d3.select(".input-check").select("div").text("methane");
+        d3.select(".input-check").select("div").text("Methane");
         maptype = 1;
         year = d3.select('#year').attr("value")
         drawBarChart(year);
         draw(year);
-
       }
     }
   </script>

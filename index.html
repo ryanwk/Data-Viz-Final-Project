@@ -11,8 +11,14 @@
   <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet">
   <style>
 
-  *{
+    *{
     font-family: 'Work Sans', sans-serif;
+  }
+  .tick:hover{
+    cursor: pointer;
+  }
+  path:hover{
+    cursor: pointer;
   }
 
     #title {
@@ -187,6 +193,11 @@ path:hover {
       left: 53%;
     }
 
+    .legend{
+      position: fixed;
+      top:300px;
+      left:42%;
+    }
   </style>
 </head>
 
@@ -194,15 +205,15 @@ path:hover {
 
   <div class="header" id="myHeader">
     <img src="lildrippyglobe.png" alt="Lil drippy globe">
-  <h2>Cows, Cars, and Climate Change</h2>
-  <h3> Thomas Klimek and Ryan Koch </h3>
+    <h2>Cows, Cars, and Climate Change</h2>
+    <h3> Thomas Klimek and Ryan Koch </h3>
   </div>
-  
+
   <div class="row">
 
     <div id="methaneMap" class="column">
       <h1 class="title"></h1></br>
-      
+
 
     </div>
 
@@ -212,162 +223,229 @@ path:hover {
 
   </div>
   <div class="vizoptions">
-  <label class="input-check" id="button"><input onchange="change_state(this)" type="checkbox" /> <div>methane</div> </label>
-  
-  
-</div>
+    <label class="input-check" id="button"><input onchange="change_state(this)" type="checkbox" />
+      <div>methane</div>
+    </label>
+
+
+  </div>
   <div class="slide">
 
-      <form>
-        <label for="year">Please select a year: </label>
-        <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
-        <output name="selected_year" id="selected_year">2013</output>
-      </form>
+    <form>
+      <label for="year">Please select a year: </label>
+      <input type="range" min=2013 max=2017 step=1 id="year" value=2013 oninput="selected_year.value = year.value">
+      <output name="selected_year" id="selected_year">2013</output>
+    </form>
   </div>
 
+
   <script>
-  var selections = ['AR', 'TX', 'MA', 'NM', 'UT', 'OH', 'MO', 'NY', 'NC']
-  var datafiles = {}
-  var cardatafiles = {}
-  var maptype = 1;
-  function drawBarChart(year){
-    if (maptype == 1)
-      inputdata = datafiles
-    else
-      inputdata = cardatafiles
-    d3.select("#cowChart").select("svg").remove()
-    // Set the dimensions of cowChart
-    var chartMargin = { top: 30, right: 20, bottom: 30, left: 50 },
-      chartWidth = 600 - chartMargin.left - chartMargin.right,
-      chartHeight = 420 - chartMargin.top - chartMargin.bottom;
+    function drawLegend() {
+      if (maptype == 1) {
+        var legendDimensions = [
+          { "x_axis": 24, "y_axis": 100, "text": "None", "color": "rgb(255,255,204)" },
+          { "x_axis": 24, "y_axis": 75, "text": "Low", "color": "rgb(255,255,204)" },
+          { "x_axis": 24, "y_axis": 50, "text": "Moderate", "color": "rgb(253,141,60)" },
+          { "x_axis": 24, "y_axis": 25, "text": "Severe", "color": "rgb(227,26,28)" },
+          { "x_axis": 24, "y_axis": 0, "text": "Danger Zone", "color": "rgb(128,0,38)" }];
+      }
+      else {
+        var legendDimensions = [
+          { "x_axis": 24, "y_axis": 100, "text": "None", "color": "rgb(247,252,245)" },
+          { "x_axis": 24, "y_axis": 75, "text": "Low", "color": "rgb(199,233,192)" },
+          { "x_axis": 24, "y_axis": 50, "text": "Moderate", "color": "rgb(116,196,118)" },
+          { "x_axis": 24, "y_axis": 25, "text": "Severe", "color": "rgb(35,139,69)" },
+          { "x_axis": 24, "y_axis": 0, "text": "Danger Zone", "color": "rgb(0,68,27)" }];
+      }
 
-    // Get the data
-    d3.csv(inputdata[year], function (error, data) {
-      data.forEach(function (d) {
-        // not sure if the two following lines are necessary
-        if (selections.includes(d.state))
-          if (maptype == 1)
-            d.value = +d.value;
-          else
-            d.value = +d.value / 1000000;
-        // return d.value;
-      });
+      var legendContainer = d3.select("body").append("svg")
+        .attr("class", "legend")
+        .attr("width", 140)
+        .attr("height", 200);
 
-      // Scale cowChart
-      var x = d3.scale.ordinal()
-        .domain(selections)
-        .rangeRoundBands([0, chartWidth], .1);
+      var rectangles = legendContainer.append("rect")
+        .attr("x", 24)
+        .attr("y", 9)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", "grey");
 
-      var y = d3.scale.linear()
-        .domain([0, d3.max(data, function (d) { 
-          if (selections.includes(d.state))
-            return d.value; })])
-        .range([chartHeight, 0], 0.1);
+      var colors = legendContainer.selectAll("rect")
+        .data(legendDimensions)
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return d.x_axis; })
+        .attr("y", function (d) { return d.y_axis; })
+        .attr("fill", function (d) { return d.color; })
+        .attr("width", 18)
+        .attr("height", "18px");
 
-      // Define the axis cowChart
-      var xAxis = d3.svg.axis().scale(x)
-        .orient("bottom").ticks(10);
+      var text = legendContainer.selectAll("text")
+        .data(legendDimensions)
+        .enter()
+        .append("text")
+        .attr("x", 42)
+        .text(function (d) { return d.text; })
+        .attr("y", function (d) { return d.y_axis + 20; })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "17px")
+        .attr("fill", "black");
 
-      var yAxis = d3.svg.axis().scale(y)
-        .orient("left").ticks(10);
-
-
-
-      // Adds the svg canvas, preserveAspectRatio makes the svg fit to the div dynamically
-      var cowChart = d3.select("#cowChart")
-        .append("svg")
-        .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", "0 0 750 500")
-        .append("g")
-        .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
-
-
-      // chart name
+      var rectAttributes = rectangles
+        .attr("x", function (d) { return d.x_axis; })
+        .attr("y", function (d) { return d.y_axis; });
+    }
+    var selections = ['AR', 'TX', 'MA', 'NM', 'UT', 'OH', 'MO', 'NY', 'NC']
+    var datafiles = {}
+    var cardatafiles = {}
+    var maptype = 1;
+    function drawBarChart(year) {
       if (maptype == 1)
-        var chartTitle = "Milk Cows by State";
+        inputdata = datafiles
       else
-        var chartTitle = "Cars by State"; 
-      var cowCharttitle = d3.select("#cowChartTitle")
-        .text(chartTitle);
+        inputdata = cardatafiles
+      d3.select("#cowChart").select("svg").remove()
+      // Set the dimensions of cowChart
+      var chartMargin = { top: 30, right: 20, bottom: 30, left: 50 },
+        chartWidth = 600 - chartMargin.left - chartMargin.right,
+        chartHeight = 420 - chartMargin.top - chartMargin.bottom;
 
-
-      // Add the X Axis
-      cowChart.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + chartHeight + ")")
-        .call(xAxis);
-
-      // text label for the x axis
-      cowChart.append("text")
-        .attr("x", chartWidth / 2)
-        .attr("y", (chartHeight + 20) + chartMargin.bottom)
-        .style("text-anchor", "middle")
-        .style("font-size", "14px")
-        .text("State");
-
-      // Add the Y Axis
-      cowChart.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-
-      // label for y axis
-      cowChart.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - chartMargin.left)
-        .attr("x", 0 - ((chartHeight + 20) / 2))
-        .attr("dy", "1em")
-        .style("font-size", "14px")
-        .style("text-anchor", "middle")
-        .text("Value");
-
-      // give bars some room
-      var barPadding = 1;
-
-      var bar = cowChart.selectAll(".bar")
-        .data(data)
-        .enter().append("rect")
-        .attr("class", "bar")
-        .attr("width", chartWidth / selections.length - barPadding)
-        .attr("height", function (d) {
+      // Get the data
+      d3.csv(inputdata[year], function (error, data) {
+        data.forEach(function (d) {
+          // not sure if the two following lines are necessary
           if (selections.includes(d.state))
-            return y(0) - y(d.value);  //Just the data value
-        })
-        .attr("x", function (d, i) {
-          if (selections.includes(d.state))
-            return x(d.state)
-          //return i * ( - barPadding);
-        })
-        .attr("y", function (d) {
-          if (selections.includes(d.state))
-            return y(d.value);  //Height minus data value
-        })
-        .attr("fill", function (d) {
-          if (selections.includes(d.state))
-            return "rgb(0, 0, " + (d.value * 10) + ")";
+            if (maptype == 1)
+              d.value = +d.value;
+            else
+              d.value = +d.value / 1000000;
+          // return d.value;
         });
- 
-      // Tooltip
-      d3.select(".tooltip").remove()
-      var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip");
 
-      bar.on("mouseover", function (d) {
+        // Scale cowChart
+        var x = d3.scale.ordinal()
+          .domain(selections)
+          .rangeRoundBands([0, chartWidth], .1);
+
+        var y = d3.scale.linear()
+          .domain([0, d3.max(data, function (d) {
+            if (selections.includes(d.state))
+              return d.value;
+          })])
+          .range([chartHeight, 0], 0.1);
+
+        // Define the axis cowChart
+        var xAxis = d3.svg.axis().scale(x)
+          .orient("bottom").ticks(10);
+
+        var yAxis = d3.svg.axis().scale(y)
+          .orient("left").ticks(10);
+
+
+
+        // Adds the svg canvas, preserveAspectRatio makes the svg fit to the div dynamically
+        var cowChart = d3.select("#cowChart")
+          .append("svg")
+          .attr("preserveAspectRatio", "xMinYMin meet")
+          .attr("viewBox", "0 0 750 500")
+          .append("g")
+          .attr("transform", "translate(" + chartMargin.left + "," + chartMargin.top + ")");
+
+
+        // chart name
         if (maptype == 1)
-          tooltip.html(d.value + " thousand cows")
-            .style("visibility", "visible");
+          var chartTitle = "Milk Cows by State";
         else
-          tooltip.html(Math.round(d.value*100) / 100 + " million cars")
-            .style("visibility", "visible");
-      })
-        .on("mousemove", function (d) {
-          tooltip.style("top", event.pageY - (tooltip[0][0].clientHeight + 5) + "px")
-            .style("left", event.pageX - (tooltip[0][0].clientWidth / 2.0) + "px");
-        })
-        .on("mouseout", function (d) {
-          tooltip.style("visibility", "hidden");
+          var chartTitle = "Cars by State";
+        var cowCharttitle = d3.select("#cowChartTitle")
+          .text(chartTitle);
+
+
+        // Add the X Axis
+        cowChart.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + chartHeight + ")")
+          .call(xAxis);
+
+
+        d3.selectAll(".tick").on("click", function () {
+          console.log(this.childNodes[1].innerHTML);
+          selections.splice(selections.indexOf(this.childNodes[1].innerHTML), 1);
+          year = d3.select('#year').attr("value")
+          drawBarChart(year);
         });
-    });
-  }
+
+        // text label for the x axis
+        cowChart.append("text")
+          .attr("x", chartWidth / 2)
+          .attr("y", (chartHeight + 20) + chartMargin.bottom)
+          .style("text-anchor", "middle")
+          .style("font-size", "14px")
+          .text("State");
+
+        // Add the Y Axis
+        cowChart.append("g")
+          .attr("class", "y axis")
+          .call(yAxis);
+
+        // label for y axis
+        cowChart.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0 - chartMargin.left)
+          .attr("x", 0 - ((chartHeight + 20) / 2))
+          .attr("dy", "1em")
+          .style("font-size", "14px")
+          .style("text-anchor", "middle")
+          .text("");
+
+        // give bars some room
+        var barPadding = 1;
+
+        var bar = cowChart.selectAll(".bar")
+          .data(data)
+          .enter().append("rect")
+          .attr("class", "bar")
+          .attr("width", chartWidth / selections.length - barPadding)
+          .attr("height", function (d) {
+            if (selections.includes(d.state))
+              return y(0) - y(d.value);  //Just the data value
+          })
+          .attr("x", function (d, i) {
+            if (selections.includes(d.state))
+              return x(d.state)
+            //return i * ( - barPadding);
+          })
+          .attr("y", function (d) {
+            if (selections.includes(d.state))
+              return y(d.value);  //Height minus data value
+          })
+          .attr("fill", function (d) {
+            if (selections.includes(d.state))
+              return "rgb(0, 0, " + (d.value * 10) + ")";
+          });
+
+        // Tooltip
+        d3.select(".tooltip").remove()
+        var tooltip = d3.select("body").append("div")
+          .attr("class", "tooltip");
+
+        bar.on("mouseover", function (d) {
+          if (maptype == 1)
+            tooltip.html(d.value + " thousand cows")
+              .style("visibility", "visible");
+          else
+            tooltip.html(Math.round(d.value * 100) / 100 + " million cars")
+              .style("visibility", "visible");
+        })
+          .on("mousemove", function (d) {
+            tooltip.style("top", event.pageY - (tooltip[0][0].clientHeight + 5) + "px")
+              .style("left", event.pageX - (tooltip[0][0].clientWidth / 2.0) + "px");
+          })
+          .on("mouseout", function (d) {
+            tooltip.style("visibility", "hidden");
+          });
+      });
+    }
 
 
     // methane map
@@ -548,18 +626,20 @@ path:hover {
       cardatafiles['2017'] = "cars2017.csv";
       drawBarChart('2013');
       draw('2013');
-      
+
 
     }
 
     function draw(year) {
+      d3.select('.legend').remove();
+      drawLegend();
       if (maptype == 1)
         var title = d3.select("h1").text("Methane Production by State");
       else
         var title = d3.select("h1").text("CO2 Production by State");
       var min = 100000000000;
       var max = 0;
-      if (maptype == 1){
+      if (maptype == 1) {
         mapping = data[year];
       }
       else {
@@ -589,7 +669,7 @@ path:hover {
         })
         .attr("id", function (d) { return d.COUNTY; })
         .attr("d", path)
-        .on("click", function(d){
+        .on("click", function (d) {
           if (selections.includes(stateFips.get(d.id)))
             selections.splice(selections.indexOf(stateFips.get(d.id)), 1)
           else
@@ -598,18 +678,18 @@ path:hover {
           //console.log(selections)
         });
 
-        d3.select(".tooltip2").remove()
-        var tooltip2 = d3.select("#methaneMap").append("div")
+      d3.select(".tooltip2").remove()
+      var tooltip2 = d3.select("#methaneMap").append("div")
         .attr("class", "tooltip2");
 
       d3.selectAll("path").on("mouseover", function (d) {
         sname = stateFips.get(d.id);
         var dataval = mapping.get(sname);
         if (maptype == 1)
-          tooltip2.html(sname + ": " + Math.round((dataval/1000000 * 100))/100 + " million metric tons of methane")
+          tooltip2.html(sname + ": " + Math.round((dataval / 1000000 * 100)) / 100 + " million metric tons of methane")
             .style("visibility", "visible");
-        else 
-          tooltip2.html(sname + ": " + Math.round((dataval/1000000 * 100))/100 + " million metric tons of co2")
+        else
+          tooltip2.html(sname + ": " + Math.round((dataval / 1000000 * 100)) / 100 + " million metric tons of co2")
             .style("visibility", "visible");
       })
         .on("mousemove", function (d) {
@@ -620,39 +700,39 @@ path:hover {
           tooltip2.style("visibility", "hidden");
         });
 
-        //console.log(min)
-        //console.log(max)
+      //console.log(min)
+      //console.log(max)
     }
 
     var slider = d3.select('#year');
     slider.on('change', function () {
-      slider.attr("value", this.value); 
+      slider.attr("value", this.value);
       drawBarChart(this.value);
       draw(this.value);
-      
+
     });
 
 
-    function change_state(obj){
-        if (obj.checked){
-            
-            obj.parentNode.classList.add("checked");
-            d3.select(".input-check").select("div").text("co2");
-            maptype = 2;
-            year = d3.select('#year').attr("value")
-            drawBarChart(year);
-            draw(year);
-            
-        }
-        else{
-            //else remove it
-            obj.parentNode.classList.remove("checked");
-            d3.select(".input-check").select("div").text("methane");
-            maptype = 1;
-            year = d3.select('#year').attr("value")
-            drawBarChart(year);
-            draw(year);
-            
-        }
+    function change_state(obj) {
+      if (obj.checked) {
+
+        obj.parentNode.classList.add("checked");
+        d3.select(".input-check").select("div").text("co2");
+        maptype = 2;
+        year = d3.select('#year').attr("value")
+        drawBarChart(year);
+        draw(year);
+
+      }
+      else {
+        //else remove it
+        obj.parentNode.classList.remove("checked");
+        d3.select(".input-check").select("div").text("methane");
+        maptype = 1;
+        year = d3.select('#year').attr("value")
+        drawBarChart(year);
+        draw(year);
+
+      }
     }
   </script>

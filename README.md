@@ -1,3 +1,7 @@
+# Use the Viz
+
+Click me: https://ryanwk.github.io/Data-Viz-Final-Project/
+
 # Climate Change 
 We chose this topic to spread awareness about climate change. 
 It’s difficult to make a meaningful impact on climate change without understanding the details. So, this semester we set out to build an exploratory visualization that could visually depict the antagonists of climate change. After deliberation and research, we discovered that two of the major factors affecting our climate are two greenhouse gasses, C02 and Methane. We then did research on what the major sources of those gasses are and landed on the agriculture and fossil fuel industry. A deeper look into these domains revealed that cows, specifically dairy cows, and vehicles are the greatest sources of destructive the greenhouse gases C02 and CH4 (Methane). 
